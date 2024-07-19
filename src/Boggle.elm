@@ -2,8 +2,9 @@ module Boggle exposing (..)
 
 import Array exposing (Array)
 import Browser
-import Html exposing (Html, div, text)
+import Html exposing (Html, a, div, text)
 import Html.Attributes exposing (class)
+import Random
 
 
 main : Program () Model Msg
@@ -49,6 +50,12 @@ initialModel =
     in
     { dice = [] }
 
+
+randomElement : Array Char -> Random.Generator Char 
+randomElement arr =
+    Random.map
+        (\index -> Array.get index arr |> Maybe.withDefault 'A')
+        (Random.int 0 (Array.length arr))
 
 initialCmd : Cmd msg
 initialCmd =
