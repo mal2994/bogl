@@ -5162,7 +5162,27 @@ var $elm$browser$Browser$element = _Browser_element;
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Boggle$initialCmd = $elm$core$Platform$Cmd$none;
-var $author$project$Boggle$initialModel = {dice: $elm$core$Array$empty};
+var $author$project$Boggle$initialModel = {
+	dice: _List_fromArray(
+		[
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a'),
+			_Utils_chr('a')
+		])
+};
 var $author$project$Boggle$init = function (_v0) {
 	return _Utils_Tuple2($author$project$Boggle$initialModel, $author$project$Boggle$initialCmd);
 };
@@ -5172,17 +5192,50 @@ var $author$project$Boggle$update = F2(
 	function (msg, model) {
 		return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 	});
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$core$Char$toUpper = _Char_toUpper;
+var $author$project$Boggle$viewCell = function (letter) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('cell')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(
+				$elm$core$String$fromChar(
+					$elm$core$Char$toUpper(letter)))
+			]));
+};
 var $author$project$Boggle$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
 		_List_fromArray(
 			[
-				$elm$html$Html$text('wtf')
-			]));
+				$elm$html$Html$Attributes$class('grid')
+			]),
+		A2(
+			$elm$core$List$map,
+			function (a) {
+				return $author$project$Boggle$viewCell(a);
+			},
+			model.dice));
 };
 var $author$project$Boggle$main = $elm$browser$Browser$element(
 	{
