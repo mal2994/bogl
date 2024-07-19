@@ -18,67 +18,54 @@ init _ =
 
 
 type alias Model =
-    { dice : Array Char }
+    { faces : List Char }
 
 
 type Msg
-    = GotRandomInt Int
+    = GotNewDiceRoll Int
 
 
 initialModel : Model
 initialModel =
-    { dice = Array.empty }
+    { faces = [] }
 
 
-newModel : Random.Seed -> Model
-newModel seed =
-    let
-        faces =
-            [ [ 'R', 'I', 'F', 'O', 'B', 'X' ]
-            , [ 'I', 'F', 'E', 'H', 'E', 'Y' ]
-            , [ 'D', 'E', 'N', 'O', 'W', 'S' ]
-            , [ 'U', 'T', 'O', 'K', 'N', 'D' ]
-            , [ 'H', 'M', 'S', 'R', 'A', 'O' ]
-            , [ 'L', 'U', 'P', 'E', 'T', 'S' ]
-            , [ 'A', 'C', 'I', 'T', 'O', 'A' ]
-            , [ 'Y', 'L', 'G', 'K', 'U', 'E' ]
-            , [ 'U', 'B', 'M', 'J', 'O', 'A' ]
-            , [ 'E', 'H', 'I', 'S', 'P', 'N' ]
-            , [ 'V', 'E', 'T', 'I', 'N', 'G' ]
-            , [ 'B', 'A', 'L', 'I', 'Y', 'T' ]
-            , [ 'E', 'Z', 'A', 'V', 'N', 'D' ]
-            , [ 'R', 'A', 'L', 'E', 'S', 'C' ]
-            , [ 'U', 'W', 'I', 'L', 'R', 'G' ]
-            , [ 'P', 'A', 'C', 'E', 'M', 'D' ]
-            ]
-                |> Array.fromList
-    in
-    { dice =
-        Array.map
-            (\die -> randomElement seed (Array.fromList die))
-            faces
-    }
+defaultFaces : List (List Char)
+defaultFaces =
+    [ [ 'R', 'I', 'F', 'O', 'B', 'X' ]
+    , [ 'I', 'F', 'E', 'H', 'E', 'Y' ]
+    , [ 'D', 'E', 'N', 'O', 'W', 'S' ]
+    , [ 'U', 'T', 'O', 'K', 'N', 'D' ]
+    , [ 'H', 'M', 'S', 'R', 'A', 'O' ]
+    , [ 'L', 'U', 'P', 'E', 'T', 'S' ]
+    , [ 'A', 'C', 'I', 'T', 'O', 'A' ]
+    , [ 'Y', 'L', 'G', 'K', 'U', 'E' ]
+    , [ 'U', 'B', 'M', 'J', 'O', 'A' ]
+    , [ 'E', 'H', 'I', 'S', 'P', 'N' ]
+    , [ 'V', 'E', 'T', 'I', 'N', 'G' ]
+    , [ 'B', 'A', 'L', 'I', 'Y', 'T' ]
+    , [ 'E', 'Z', 'A', 'V', 'N', 'D' ]
+    , [ 'R', 'A', 'L', 'E', 'S', 'C' ]
+    , [ 'U', 'W', 'I', 'L', 'R', 'G' ]
+    , [ 'P', 'A', 'C', 'E', 'M', 'D' ]
+    ]
 
 
-randomElement : Random.Seed -> Array Char -> Char
-randomElement seed arr =
-    Random.step
-        (Random.map
-            (\index -> Array.get index arr |> Maybe.withDefault 'A')
-            (Random.int 0 (Array.length arr))
-        )
-        seed
-        |> Tuple.first
+randomDiceRollsCmd : List (Cmd Msg)
+randomDiceRollsCmd =
+    List.range 1 16
+        |> List.map
+            (\_ -> Random.generate GotNewDiceRoll (Random.int 1 6))
 
 
 initialCmd : Cmd Msg
 initialCmd =
-    Random.generate GotRandomInt (Random.int 0 32000)
+    Cmd.batch randomDiceRollsCmd
 
 
 view : Model -> Html Msg
 view model =
-    div [ class "grid" ] (List.map (\a -> viewCell a) (Array.toList model.dice))
+    div [ class "grid" ] (List.map (\a -> viewCell a) model.faces)
 
 
 viewCell : Char -> Html Msg
@@ -87,7 +74,24 @@ viewCell letter =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg _ =
+update msg model =
     case msg of
-        GotRandomInt i ->
-            ( newModel <| Random.initialSeed i, Cmd.none )
+        GotNewDiceRoll face ->
+            let
+                newFace : Char
+                newFace =
+                    listGetAt
+                        (listGetAt defaultFaces (List.length model.faces)
+                            |> Maybe.withDefault [ 'A' ]
+                        )
+                        face
+                        |> Maybe.withDefault 'A'
+            in
+            ( { model | faces = List.append model.faces [ newFace ] }
+            , Cmd.none
+            )
+
+
+listGetAt : List a -> Int -> Maybe a
+listGetAt list index =
+    List.drop (index - 1) list |> List.head
