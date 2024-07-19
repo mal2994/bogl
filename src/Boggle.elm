@@ -18,7 +18,7 @@ init _ =
 
 
 type alias Model =
-    { dice : List Char }
+    { dice : Array Char }
 
 
 type Msg
@@ -47,15 +47,28 @@ initialModel =
             , [ 'U', 'W', 'I', 'L', 'R', 'G' ]
             , [ 'P', 'A', 'C', 'E', 'M', 'D' ]
             ]
+                |> Array.fromList
+
+        seed =
+            Random.initialSeed 0
     in
-    { dice = [] }
+    { dice =
+        Array.map
+            (\die -> randomElement seed (Array.fromList die))
+            faces
+    }
 
 
-randomElement : Array Char -> Random.Generator Char 
-randomElement arr =
-    Random.map
-        (\index -> Array.get index arr |> Maybe.withDefault 'A')
-        (Random.int 0 (Array.length arr))
+randomElement : Random.Seed -> Array Char -> Char
+randomElement seed arr =
+    Random.step
+        (Random.map
+            (\index -> Array.get index arr |> Maybe.withDefault 'A')
+            (Random.int 0 (Array.length arr))
+        )
+        seed
+        |> Tuple.first
+
 
 initialCmd : Cmd msg
 initialCmd =
@@ -64,7 +77,7 @@ initialCmd =
 
 view : Model -> Html Msg
 view model =
-    div [ class "grid" ] (List.map (\a -> viewCell a) model.dice)
+    div [ class "grid" ] (List.map (\a -> viewCell a) (Array.toList model.dice))
 
 
 viewCell : Char -> Html Msg
