@@ -22,12 +22,16 @@ type alias Model =
 
 
 type Msg
-    = GotRandomFace
+    = GotRandomInt Int
 
 
 initialModel : Model
 initialModel =
-    -- { dice = [ 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a' ] }
+    { dice = Array.empty }
+
+
+newModel : Random.Seed -> Model
+newModel seed =
     let
         faces =
             [ [ 'R', 'I', 'F', 'O', 'B', 'X' ]
@@ -48,9 +52,6 @@ initialModel =
             , [ 'P', 'A', 'C', 'E', 'M', 'D' ]
             ]
                 |> Array.fromList
-
-        seed =
-            Random.initialSeed 0
     in
     { dice =
         Array.map
@@ -70,9 +71,9 @@ randomElement seed arr =
         |> Tuple.first
 
 
-initialCmd : Cmd msg
+initialCmd : Cmd Msg
 initialCmd =
-    Cmd.none
+    Random.generate GotRandomInt (Random.int 0 32000)
 
 
 view : Model -> Html Msg
@@ -86,7 +87,7 @@ viewCell letter =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg _ =
     case msg of
-        GotRandomFace ->
-            ( model, Cmd.none )
+        GotRandomInt i ->
+            ( newModel <| Random.initialSeed i, Cmd.none )
